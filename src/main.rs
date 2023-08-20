@@ -24,10 +24,18 @@ enum Body {
         in_reply_to: usize,
         echo: String,
     },
+    Generate {
+        msg_id: usize,
+    },
+    GenerateOk {
+        id: String,
+        msg_id: usize,
+        in_reply_to: usize,
+    },
 }
 
 impl Body {
-    fn into_reply(self) -> Option<Body> {
+    fn into_reply(self, node_id: &String) -> Option<Body> {
         //!Consumes self, returns a Some(reply_body)
         //! if one exists.
         match self {
@@ -39,6 +47,16 @@ impl Body {
                 in_reply_to: msg_id,
                 echo,
             }),
+            Body::Generate { msg_id } => {
+                //Because node_id is unique for a given node, and
+                //Message IDs are unique per source node
+                let unique_id = format!("{}|{}", node_id, msg_id);
+                Some(Body::GenerateOk {
+                    id: unique_id,
+                    msg_id,
+                    in_reply_to: msg_id,
+                })
+            }
             _ => None,
         }
     }
@@ -52,10 +70,10 @@ struct MaelstromMessage {
 }
 
 impl MaelstromMessage {
-    fn reply(self, mut stdout_handle: &mut io::StdoutLock) {
+    fn reply(self, mut stdout_handle: &mut io::StdoutLock, message_id: &String) {
         //! For a given MaelStromMessage, Build and send a reply
         //! if one exists.
-        let reply_body = self.body.into_reply();
+        let reply_body = self.body.into_reply(&message_id);
         if let Some(reply_body) = reply_body {
             let maelstrom_reply = MaelstromMessage {
                 src: self.dest,
@@ -91,23 +109,20 @@ fn node_init() -> (String, Vec<String>) {
         panic!("First maelstrom message recieved was not an Init.")
     }
     let mut stdout_handle = std::io::stdout().lock();
-    init_message.reply(&mut stdout_handle);
+    init_message.reply(&mut stdout_handle, &node_info.0);
     return node_info;
 }
 
 fn main() {
-    let (node_id, node_ids) = node_init();
-    eprintln!(
-        "Intitialized with the following Node Id {:?} and Node Ids {:?}",
-        node_id, node_ids
-    );
+    let (node_id, _) = node_init();
+
     let stdin_handle = io::stdin().lock();
     let mut stdout_handle = io::stdout().lock();
     for line in stdin_handle.lines() {
         let line = line.expect("Nothing recieved via stdin...");
         let message: Result<MaelstromMessage, _> = serde_json::from_str(&line);
         match message {
-            Ok(maelstrom_inbound) => maelstrom_inbound.reply(&mut stdout_handle),
+            Ok(maelstrom_inbound) => maelstrom_inbound.reply(&mut stdout_handle, &node_id),
             Err(_) => eprintln!("Received the following invalid inbound: {}", line),
         }
     }
