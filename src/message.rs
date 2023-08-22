@@ -1,6 +1,15 @@
 use super::body::Body;
 use serde::{self, Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 use std::io::{self, BufRead, Write};
+
+#[derive(Debug, Clone)]
+pub struct NodeMetadata {
+    pub node_id: String,
+    pub node_ids: Vec<String>,
+    pub seen_message_ids: HashSet<String>,
+    pub kv_store: HashMap<usize, usize>,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct MaelstromMessage {
@@ -10,10 +19,14 @@ pub struct MaelstromMessage {
 }
 
 impl MaelstromMessage {
-    pub fn reply(self, mut stdout_handle: &mut io::StdoutLock, message_id: &String) {
+    pub fn reply(
+        self,
+        mut stdout_handle: &mut io::StdoutLock,
+        mut node_metadata: &mut NodeMetadata,
+    ) {
         //! For a given MaelStromMessage, Build and send a reply
         //! if one exists.
-        let reply_body = self.body.into_reply(&message_id);
+        let reply_body = self.body.into_reply(&mut node_metadata);
         if let Some(reply_body) = reply_body {
             let maelstrom_reply = MaelstromMessage {
                 src: self.dest,
@@ -30,9 +43,9 @@ impl MaelstromMessage {
     }
 }
 
-pub fn node_init() -> (String, Vec<String>) {
+pub fn node_init() -> NodeMetadata {
     //!Get the Node Init Message from stdin, returning
-    //! the node_id and the node_ids.
+    //! the node metadata.
     let stdin_handle = io::stdin().lock();
     let first_line = stdin_handle
         .lines()
@@ -42,16 +55,22 @@ pub fn node_init() -> (String, Vec<String>) {
     let init_message: MaelstromMessage =
         serde_json::from_str(&first_line).expect("Could not deserialize Init JSON");
 
-    let node_info: (String, Vec<String>);
+    let mut node_metadata: NodeMetadata;
     if let Body::Init {
         node_id, node_ids, ..
     } = &init_message.body
     {
-        node_info = (node_id.clone(), node_ids.clone());
+        node_metadata = NodeMetadata {
+            node_id: node_id.clone(),
+            node_ids: node_ids.clone(),
+            seen_message_ids: HashSet::new(),
+            kv_store: HashMap::new(),
+        }
     } else {
         panic!("First maelstrom message recieved was not an Init.")
     }
+
     let mut stdout_handle = std::io::stdout().lock();
-    init_message.reply(&mut stdout_handle, &node_info.0);
-    return node_info;
+    init_message.reply(&mut stdout_handle, &mut node_metadata);
+    return node_metadata;
 }
