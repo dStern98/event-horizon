@@ -40,6 +40,54 @@ pub enum Body {
         in_reply_to: usize,
         txn: Vec<(String, usize, Option<usize>)>,
     },
+    WritePropogate {
+        transaction_guid: usize,
+        write_ops: HashMap<usize, usize>,
+    },
+    AckWritePropogate {},
+}
+
+impl Body {
+    pub fn propogate_kv_writes(&self, node_metadata: &mut NodeMetadata) -> Option<Body> {
+        if let Body::TxnOk { txn, .. } = self {
+            let write_ops =
+                txn.clone()
+                    .into_iter()
+                    .filter(|(op, _, _)| op == "w")
+                    .map(|(_, key, value)| {
+                        (key, value.expect("Cannot recieve a write without a value"))
+                    });
+
+            //Build the writes for a transaction into a HashMap.
+            let write_ops: HashMap<usize, usize> = HashMap::from_iter(write_ops);
+            eprintln!("Write Ops {:?} has len {:?}", write_ops, write_ops.len());
+            if write_ops.len() > 0 {
+                let write_propogator = Body::WritePropogate {
+                    transaction_guid: node_metadata.current_msg_id,
+                    write_ops,
+                };
+                return Some(write_propogator);
+            }
+            // let write_propogator = Body::WritePropogate {
+            //     transaction_guid: node_metadata.current_msg_id,
+            //     write_ops,
+            // };
+            // return Some(write_propogator);
+        }
+        None
+
+        // //Insert into the HashMap of forwarded_writes the current_msg_id.
+        // // When acks are returned, those items are removed from the HashMap.
+        // let mut forwarded_writes = node_metadata
+        //     .forwarded_writes
+        //     .lock()
+        //     .expect("Could not access forwarded writes ");
+        // forwarded_writes.insert(
+        //     node_metadata.current_msg_id,
+        //     (write_propogator, node_metadata.node_ids.clone()),
+        // );
+        // };
+    }
 }
 
 fn key_value_crud(
@@ -75,8 +123,8 @@ impl Body {
             Body::Init { msg_id, .. } => Some(Body::InitOk {
                 in_reply_to: msg_id,
             }),
-            Body::Echo { msg_id, echo } => Some(Body::EchoOk {
-                msg_id,
+            Body::Echo { msg_id, echo, .. } => Some(Body::EchoOk {
+                msg_id: node_metadata.current_msg_id,
                 in_reply_to: msg_id,
                 echo,
             }),
@@ -86,7 +134,7 @@ impl Body {
                 let unique_id = format!("{}|{}", &node_metadata.node_id, msg_id);
                 Some(Body::GenerateOk {
                     id: unique_id,
-                    msg_id,
+                    msg_id: node_metadata.current_msg_id,
                     in_reply_to: msg_id,
                 })
             }
@@ -96,10 +144,17 @@ impl Body {
                     .map(|read_write_op| key_value_crud(read_write_op, &mut node_metadata.kv_store))
                     .collect();
                 Some(Body::TxnOk {
-                    msg_id,
+                    msg_id: node_metadata.current_msg_id,
                     in_reply_to: msg_id,
                     txn,
                 })
+            }
+            Body::WritePropogate { write_ops, .. } => {
+                for (key, value) in write_ops.into_iter() {
+                    node_metadata.kv_store.insert(key, value);
+                }
+
+                None
             }
 
             _ => None,
