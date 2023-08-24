@@ -1,17 +1,15 @@
 use super::{Body, MaelstromMessage};
 use std::collections::HashMap;
 use std::io::{self, BufRead, Write};
-use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Clone)]
 pub struct NodeMetadata {
     pub node_id: String,
     pub current_msg_id: usize,
     //Note that the node_ids DOES NOT
-    //include this nodes node_id
+    //INCLUDE this nodes node_id
     pub node_ids: Vec<String>,
-    //Store the GUIDs of all Propogated Writes
-    pub forwarded_writes: Arc<Mutex<HashMap<usize, (Body, Vec<String>)>>>,
+    //The kv_store as a HashMap
     pub kv_store: HashMap<usize, usize>,
 }
 
@@ -40,7 +38,6 @@ impl NodeMetadata {
                     .map(|item| item.clone())
                     .collect(),
                 current_msg_id: 0,
-                forwarded_writes: Arc::new(Mutex::new(HashMap::new())),
                 kv_store: HashMap::new(),
             }
         } else {
@@ -62,6 +59,6 @@ impl NodeMetadata {
         stdout_handle
             .write_all(b"\n")
             .expect("Unable to write newline character");
-        return node_metadata;
+        node_metadata
     }
 }

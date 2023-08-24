@@ -60,7 +60,6 @@ impl Body {
 
             //Build the writes for a transaction into a HashMap.
             let write_ops: HashMap<usize, usize> = HashMap::from_iter(write_ops);
-            eprintln!("Write Ops {:?} has len {:?}", write_ops, write_ops.len());
             if write_ops.len() > 0 {
                 let write_propogator = Body::WritePropogate {
                     transaction_guid: node_metadata.current_msg_id,
@@ -68,25 +67,8 @@ impl Body {
                 };
                 return Some(write_propogator);
             }
-            // let write_propogator = Body::WritePropogate {
-            //     transaction_guid: node_metadata.current_msg_id,
-            //     write_ops,
-            // };
-            // return Some(write_propogator);
         }
         None
-
-        // //Insert into the HashMap of forwarded_writes the current_msg_id.
-        // // When acks are returned, those items are removed from the HashMap.
-        // let mut forwarded_writes = node_metadata
-        //     .forwarded_writes
-        //     .lock()
-        //     .expect("Could not access forwarded writes ");
-        // forwarded_writes.insert(
-        //     node_metadata.current_msg_id,
-        //     (write_propogator, node_metadata.node_ids.clone()),
-        // );
-        // };
     }
 }
 
