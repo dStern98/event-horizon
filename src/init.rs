@@ -1,18 +1,12 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::io::{self, BufRead, Write};
 
 #[derive(Debug, Clone)]
 pub struct NodeMetadata {
     //This nodes node_id
     pub node_id: String,
-    //The guid msg_id
-    pub current_msg_id: usize,
-    //Note that the node_ids SHOULD NOT
-    //INCLUDE this nodes node_id
+    //The rest of the node_ids
     pub node_ids: Vec<String>,
-    //The kv_store as a HashMap
-    pub kv_store: HashMap<usize, usize>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -88,13 +82,8 @@ impl MaelstromInit {
         } = init_copy.body
         {
             node_metadata = NodeMetadata {
-                node_id: node_id.clone(),
-                node_ids: node_ids
-                    .into_iter()
-                    .filter(|item| item != &node_id)
-                    .collect(),
-                current_msg_id: 0,
-                kv_store: HashMap::new(),
+                node_id: node_id,
+                node_ids: node_ids,
             };
             return node_metadata;
         } else {

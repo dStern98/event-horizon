@@ -9,13 +9,10 @@ link above. Once a binary is built, maelstrom is invoked with the path to the bi
 
 ---
 
-For challenge 1, `fn main()` in `main.rs` should look like this:
+For challenge 1, the `node_runtime` fn should look like this:
 
 ```
-let node_metadata = init::MaelstromInit::init_node();
-let (tx, rx) = channel::<MaelstromMessage<echo::EchoBody>>();
-node_runtime(node_metadata, tx, rx);
-
+node_runtime::<echo::EchoBody, echo::EchoNode>(node, tx, rx);
 ```
 
 Challenge directions can be found [here](https://fly.io/dist-sys/1/).
@@ -29,13 +26,10 @@ The following test given in the fly.io directions passes:
 
 ---
 
-For challenge 2, `fn main()` in `main.rs` should look like this:
+For challenge 2, the `node_runtime` fn should look like this:
 
 ```
-let node_metadata = init::MaelstromInit::init_node();
-let (tx, rx) = channel::<MaelstromMessage<generate_id::GenerateBody>>();
-node_runtime(node_metadata, tx, rx);
-
+node_runtime::<generate_id::GenerateGuidBody, generate_id::GenerateGuidNode>(node, tx, rx);
 ```
 
 Challenge directions can be found [here](https://fly.io/dist-sys/2/).
@@ -43,6 +37,26 @@ The following test given in the fly.io directions passes:
 
 ```
  ./maelstrom test -w unique-ids --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --time-limit 30 --rate 1000 --node-count 3 --availability total --nemesis partition
+```
+
+### Challenge 4: Grow-Only Counter
+
+---
+
+For challenge 4, the `node_runtime` fn should look like this:
+
+```
+node_runtime::<grow_counter::CounterBody, grow_counter::CounterNode>(node, tx, rx);
+```
+
+Challenge directions can be found [here](https://fly.io/dist-sys/4/). While the directions instruct
+the programmer to use a "sequentially-consistent key/value store service provided by Maelstrom", I could not
+find any easy documentation on how to interact with this service, so I chose to simply send updates of each nodes
+counters every second to the other nodes.
+The following test given in the fly.io directions passes:
+
+```
+./maelstrom test -w g-counter --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 3 --rate 100 --time-limit 20 --nemesis partition
 ```
 
 ### Challenge 5: Kafka-Style Log
@@ -55,20 +69,17 @@ TODO!
 
 ---
 
-For challenge 6, `fn main()` in `main.rs` should look like this:
+For challenge 6, the `node_runtime` fn should look like this:
 
 ```
-fn main() {
-    let node_metadata = init::MaelstromInit::init_node();
-    let (tx, rx) = channel::<MaelstromMessage<kv_store::KVStoreBody>>();
-    node_runtime(node_metadata, tx, rx);
-}
+node_runtime::<kv_store::KVStoreBody, kv_store::KVStoreNode>(node, tx, rx);
 ```
 
 Challenge directions can be found [here](https://fly.io/dist-sys/6a/).
 The following test given in the fly.io directions passes:
 
 ```
+
 ./maelstrom test -w txn-rw-register --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 1 --time-limit 20 --rate 1000 --concurrency 2n --consistency-models read-uncommitted --availability total
 
 ```
@@ -83,13 +94,17 @@ The following two tests given in the fly.io directions passes:
 Test1:
 
 ```
+
 ./maelstrom test -w txn-rw-register --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 2 --concurrency 2n --time-limit 20 --rate 1000 --consistency-models read-uncommitted
+
 ```
 
 Test2:
 
 ```
+
 ./maelstrom test -w txn-rw-register --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 2 --concurrency 2n --time-limit 20 --rate 1000 --consistency-models read-uncommitted --availability total --nemesis partition
+
 ```
 
 Both of the above tests pass, but a note in the fly.io directions
@@ -104,5 +119,7 @@ Challenge directions can be found [here](https://fly.io/dist-sys/6b/).
 The following test given in the fly.io directions passes:
 
 ```
- ./maelstrom test -w txn-rw-register --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 2 --concurrency 2n --time-limit 20 --rate 1000 --consistency-models read-committed --availability total –-nemesis partition
+
+./maelstrom test -w txn-rw-register --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 2 --concurrency 2n --time-limit 20 --rate 1000 --consistency-models read-committed --availability total –-nemesis partition
+
 ```
