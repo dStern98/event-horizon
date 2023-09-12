@@ -36,8 +36,7 @@ impl Reply<EchoNode> for EchoBody {
 }
 
 impl Node<EchoBody> for EchoNode {
-    fn node_init(node_metadata: NodeMetadata, _: Sender<Event<EchoBody>>) -> Self {
-        let _ = node_metadata;
+    fn node_init(_: NodeMetadata, _: Sender<Event<EchoBody>>) -> Self {
         EchoNode { current_msg_id: 0 }
     }
 

@@ -1,6 +1,4 @@
-use crate::MaelstromMessage;
-
-use super::{Event, Node, Reply};
+use crate::{Event, MaelstromMessage, Node, Reply};
 use serde::{self, Deserialize, Serialize};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
@@ -23,9 +21,8 @@ impl Node<CounterBody> for CounterNode {
     ) -> Self {
         let other_node_ids: Vec<_> = node_metadata
             .node_ids
-            .iter()
-            .filter(|&node_id| node_id != &node_metadata.node_id)
-            .map(|node_id| node_id.clone())
+            .into_iter()
+            .filter(|node_id| node_id != &node_metadata.node_id)
             .collect();
 
         thread::spawn(move || loop {

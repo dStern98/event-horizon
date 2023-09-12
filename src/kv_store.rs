@@ -1,6 +1,4 @@
-use crate::MaelstromMessage;
-
-use super::{Event, Node, NodeMetadata, Reply};
+use crate::{Event, MaelstromMessage, Node, NodeMetadata, Reply};
 use serde::{self, Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io;
@@ -19,9 +17,8 @@ impl Node<KVStoreBody> for KVStoreNode {
     fn node_init(node_metadata: NodeMetadata, event_tx: Sender<Event<KVStoreBody>>) -> Self {
         let other_node_ids: Vec<_> = node_metadata
             .node_ids
-            .iter()
-            .filter(|&node_id| node_id != &node_metadata.node_id)
-            .map(|node_id| node_id.clone())
+            .into_iter()
+            .filter(|node_id| node_id != &node_metadata.node_id)
             .collect();
 
         thread::spawn(move || loop {
