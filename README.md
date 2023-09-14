@@ -39,6 +39,23 @@ The following test given in the fly.io directions passes:
  ./maelstrom test -w unique-ids --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --time-limit 30 --rate 1000 --node-count 3 --availability total --nemesis partition
 ```
 
+### Challenge 3a: Single-Node Broadcast
+
+---
+
+For challenge 3, the `node_runtime` fn should look like this:
+
+```
+node_runtime::<broadcast::BroadcastBody, broadcast::BroadcastNode>(node, tx, rx);
+```
+
+Challenge directions can be found [here](https://fly.io/dist-sys/3a/).
+The following test given in the fly.io directions passes:
+
+```
+./maelstrom test -w broadcast --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 1 --time-limit 20 --rate 10
+```
+
 ### Challenge 4: Grow-Only Counter
 
 ---
