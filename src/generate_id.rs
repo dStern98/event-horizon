@@ -42,7 +42,7 @@ impl Node<GenerateGuidBody> for GenerateGuidNode {
 }
 
 impl Reply<GenerateGuidNode> for GenerateGuidBody {
-    fn into_reply(self, node_state: &mut GenerateGuidNode) -> Option<Self> {
+    fn into_reply(self, node_state: &mut GenerateGuidNode, _: &String) -> Option<Self> {
         match self {
             GenerateGuidBody::Generate { msg_id } => {
                 //Because node_id is unique for a given node, and

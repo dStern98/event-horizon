@@ -26,7 +26,7 @@ where
     Self: Sized,
 {
     //Types that impl this trait are Reply Bodies for Maelstrom Messages
-    fn into_reply(self, node_state: &mut NodeState) -> Option<Self>;
+    fn into_reply(self, node_state: &mut NodeState, src: &String) -> Option<Self>;
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -57,7 +57,7 @@ where
     {
         //! For a given MaelStromMessage, Build and send a reply
         //! if one exists.
-        let reply_body = self.body.into_reply(&mut node_state);
+        let reply_body = self.body.into_reply(&mut node_state, &self.src);
         if let Some(reply_body) = reply_body {
             let mut message = MaelstromMessage {
                 src: self.dest,

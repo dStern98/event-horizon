@@ -56,6 +56,24 @@ The following test given in the fly.io directions passes:
 ./maelstrom test -w broadcast --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 1 --time-limit 20 --rate 10
 ```
 
+### Challenge 3b: Multi-Node Broadcast
+
+Challenge directions can be found [here](https://fly.io/dist-sys/3b/).
+The following test given in the fly.io directions passes:
+
+```
+./maelstrom test -w broadcast --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 5 --time-limit 20 --rate 10
+```
+
+### Challenge 3c: Fault Tolerant Broadcast
+
+Challenge directions can be found [here](https://fly.io/dist-sys/3c/).
+The following test given in the fly.io directions passes:
+
+```
+./maelstrom test -w broadcast --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 5 --time-limit 20 --rate 10 --nemesis partition
+```
+
 ### Challenge 4: Grow-Only Counter
 
 ---

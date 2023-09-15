@@ -23,7 +23,7 @@ pub enum EchoBody {
 }
 
 impl Reply<EchoNode> for EchoBody {
-    fn into_reply(self, echo_node: &mut EchoNode) -> Option<EchoBody> {
+    fn into_reply(self, echo_node: &mut EchoNode, _: &String) -> Option<EchoBody> {
         match self {
             EchoBody::Echo { msg_id, echo, .. } => Some(EchoBody::EchoOk {
                 msg_id: echo_node.current_msg_id,

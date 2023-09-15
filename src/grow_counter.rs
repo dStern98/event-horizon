@@ -63,6 +63,7 @@ impl Node<CounterBody> for CounterNode {
                         },
                     };
                     counter_value.send(&mut stdout_handle);
+                    self.current_msg_id += 1;
                 }
             }
         }
@@ -96,7 +97,7 @@ pub enum CounterBody {
 }
 
 impl Reply<CounterNode> for CounterBody {
-    fn into_reply(self, node_state: &mut CounterNode) -> Option<Self> {
+    fn into_reply(self, node_state: &mut CounterNode, _: &String) -> Option<Self> {
         match self {
             CounterBody::Add { msg_id, delta } => {
                 *node_state
