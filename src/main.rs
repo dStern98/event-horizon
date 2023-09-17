@@ -51,5 +51,5 @@ fn main() {
     let (tx, rx) = channel();
     let init_event_tx = tx.clone();
     let node = Node::node_init(node_metadata, init_event_tx);
-    node_runtime::<kafka::KafkaBody, kafka::KafkaNode>(node, tx, rx);
+    node_runtime::<kv_store::KVStoreBody, kv_store::KVStoreNode>(node, tx, rx);
 }

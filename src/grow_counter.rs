@@ -53,6 +53,8 @@ impl Node<CounterBody> for CounterNode {
                 self.current_msg_id += 1;
             }
             Event::PropogateWrites => {
+                //When a PropogateWrite is triggered, send a copy
+                //of this Nodes counter_map to every other node.
                 for other_node in self.other_node_ids.iter() {
                     let mut counter_value = MaelstromMessage {
                         src: self.node_id.clone(),
@@ -123,10 +125,14 @@ impl Reply<CounterNode> for CounterBody {
                 node_counter_map, ..
             } => {
                 for (node_id, counter_value) in node_counter_map.into_iter() {
+                    //When recieving a UpdateCounters message from another Node,
+                    //compare this Node's value for a given NodeID to the UpdateCounters value.
                     match node_state.node_counter_map.entry(node_id) {
                         Entry::Occupied(mut occ_entry) => {
                             let current_value = occ_entry.get_mut();
                             if &counter_value > current_value {
+                                //If another node has a greater value for a key,
+                                //set this Node's value to that (greater) value.
                                 *current_value = counter_value;
                             }
                         }

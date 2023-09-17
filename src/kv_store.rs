@@ -56,7 +56,7 @@ impl Node<KVStoreBody> for KVStoreNode {
                             src: self.node_id.clone(),
                             dest: other_node.clone(),
                             body: KVStoreBody::WritePropogater {
-                                transaction_guid: self.current_msg_id,
+                                msg_id: self.current_msg_id,
                                 write_ops: unpropogated_writes.clone(),
                             },
                         };
@@ -84,7 +84,7 @@ pub enum KVStoreBody {
     //message passing k-v writes. The write_ops
     //HashMap contains the k-v pairs to write.
     WritePropogater {
-        transaction_guid: usize,
+        msg_id: usize,
         write_ops: HashMap<usize, usize>,
     },
 }
@@ -113,7 +113,10 @@ fn key_value_crud(
         unpropogated_writes.insert(key.clone(), value.clone());
         return (operation, key, Some(value));
     } else {
-        panic!("Recieved invalid operation that was not one of r or w");
+        panic!(
+            "Recieved invalid operation: {} that was not one of (r,w)",
+            operation
+        );
     }
 }
 

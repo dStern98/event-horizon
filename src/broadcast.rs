@@ -67,7 +67,7 @@ impl Reply<BroadcastNode> for BroadcastBody {
                 let (_, neighbors) = match topology.entry(node_state.node_id.clone()) {
                     Entry::Occupied(entry) => entry.remove_entry(),
                     Entry::Vacant(_) => {
-                        panic!("This nodes node_id was not in topology map");
+                        panic!("Node ID {} was not in topology map!", node_state.node_id);
                     }
                 };
                 node_state.neighbors = neighbors;
