@@ -84,7 +84,7 @@ impl Reply<BroadcastNode> for BroadcastBody {
                 })
             }
             BroadcastBody::Read { msg_id } => {
-                let seen_messages: Vec<_> = node_state.messages.clone().into_iter().collect();
+                let seen_messages: Vec<_> = node_state.messages.iter().copied().collect();
                 Some(BroadcastBody::ReadOk {
                     msg_id: node_state.current_msg_id,
                     in_reply_to: msg_id,
@@ -161,12 +161,8 @@ impl Node<BroadcastBody> for BroadcastNode {
                 //Node or send all messages.
                 for neighbor in self.neighbors.iter() {
                     let message: Vec<usize> = match self.confirmed_seen.get(neighbor) {
-                        Some(known) => self
-                            .messages
-                            .difference(known)
-                            .map(|item| item.clone())
-                            .collect(),
-                        None => self.messages.clone().into_iter().collect(),
+                        Some(known) => self.messages.difference(known).copied().collect(),
+                        None => self.messages.iter().copied().collect(),
                     };
                     if message.len() > 0 {
                         let mut maelstrom_message = MaelstromMessage {

@@ -76,16 +76,11 @@ impl MaelstromInit {
             .expect("Unable to write newline character");
 
         //Construct a NodeMetadata from the cloned Init.
-        let node_metadata: NodeMetadata;
         if let InitBody::Init {
             node_id, node_ids, ..
         } = init_copy.body
         {
-            node_metadata = NodeMetadata {
-                node_id: node_id,
-                node_ids: node_ids,
-            };
-            return node_metadata;
+            NodeMetadata { node_id, node_ids }
         } else {
             panic!("First maelstrom message recieved was not an Init.")
         }

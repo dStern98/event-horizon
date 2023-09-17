@@ -103,7 +103,7 @@ fn key_value_crud(
 
     if operation == "r" {
         let read_value = kv_store.get(&key);
-        return (operation, key, read_value.map(|value| value.clone()));
+        (operation, key, read_value.map(|value| value.clone()))
     } else if operation == "w" {
         let (key, value) = (
             key,
@@ -111,7 +111,7 @@ fn key_value_crud(
         );
         kv_store.insert(key.clone(), value.clone());
         unpropogated_writes.insert(key.clone(), value.clone());
-        return (operation, key, Some(value));
+        (operation, key, Some(value))
     } else {
         panic!(
             "Recieved invalid operation: {} that was not one of (r,w)",
