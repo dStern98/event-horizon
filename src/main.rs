@@ -11,6 +11,7 @@ mod grow_counter;
 mod init;
 use init::NodeMetadata;
 mod broadcast;
+mod kafka;
 mod kv_store;
 mod node;
 use node::{Event, MaelstromMessage, Node, Reply};
@@ -50,5 +51,5 @@ fn main() {
     let (tx, rx) = channel();
     let init_event_tx = tx.clone();
     let node = Node::node_init(node_metadata, init_event_tx);
-    node_runtime::<broadcast::BroadcastBody, broadcast::BroadcastNode>(node, tx, rx);
+    node_runtime::<kafka::KafkaBody, kafka::KafkaNode>(node, tx, rx);
 }

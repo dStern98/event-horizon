@@ -85,20 +85,30 @@ node_runtime::<grow_counter::CounterBody, grow_counter::CounterNode>(node, tx, r
 ```
 
 Challenge directions can be found [here](https://fly.io/dist-sys/4/). While the directions instruct
-the programmer to use a "sequentially-consistent key/value store service provided by Maelstrom", I could not
-find any easy documentation on how to interact with this service, so I chose to simply send updates of each nodes
-counters every second to the other nodes.
+the programmer to use a "sequentially-consistent key/value store service provided by Maelstrom", I chose to simply send updates of each node's
+counter values every second to the other nodes.
 The following test given in the fly.io directions passes:
 
 ```
 ./maelstrom test -w g-counter --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 3 --rate 100 --time-limit 20 --nemesis partition
 ```
 
-### Challenge 5: Kafka-Style Log
+### Challenge 5a: Single-Node Kafka-Style Log
 
 ---
 
-TODO!
+For challenge 5, the `node_runtime` fn should look like this:
+
+```
+node_runtime::<kafka::KafkaBody, kafka::KafkaNode>(node, tx, rx);
+```
+
+Challenge directions can be found [here](https://fly.io/dist-sys/5a/).
+The following test given in the fly.io directions passes:
+
+```
+./maelstrom test -w kafka --bin /mnt/c/Users/dstern/Documents/Dev/Practice_Code/Github_Projects/event-horizon/target/debug/event-horizon --node-count 1 --concurrency 2n --time-limit 20 --rate 1000
+```
 
 ### Challenge 6a: Single-Node, Totally Available Transactions
 

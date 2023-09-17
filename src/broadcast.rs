@@ -10,7 +10,6 @@ use std::{io, thread};
 pub struct BroadcastNode {
     pub node_id: String,
     pub neighbors: Vec<String>,
-    pub other_node_ids: Vec<String>,
     pub current_msg_id: usize,
     pub messages: HashSet<usize>,
     //Stores a Mapping of Node ID to messages we know the other node
@@ -64,6 +63,7 @@ impl Reply<BroadcastNode> for BroadcastBody {
                 msg_id,
                 mut topology,
             } => {
+                //Add this Node's topology to the Node State.
                 let (_, neighbors) = match topology.entry(node_state.node_id.clone()) {
                     Entry::Occupied(entry) => entry.remove_entry(),
                     Entry::Vacant(_) => {
@@ -137,16 +137,10 @@ impl Node<BroadcastBody> for BroadcastNode {
                 .send(Event::PropogateWrites)
                 .expect("Unable to drop PropogateWrites down the channel");
         });
-        let other_node_ids: Vec<_> = node_metadata
-            .node_ids
-            .into_iter()
-            .filter(|node_id| node_id != &node_metadata.node_id)
-            .collect();
         BroadcastNode {
             current_msg_id: 0,
             node_id: node_metadata.node_id,
             messages: HashSet::new(),
-            other_node_ids,
             neighbors: Vec::new(),
             confirmed_seen: HashMap::new(),
         }
