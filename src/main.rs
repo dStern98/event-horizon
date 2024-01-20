@@ -4,16 +4,12 @@ use std::io::{self, BufRead};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
 
-mod echo;
-mod generate_id;
-mod grow_counter;
+mod node;
+use node::kv_store;
+use node::{Event, MaelstromMessage, Node, Reply};
+
 mod init;
 use init::NodeMetadata;
-mod broadcast;
-mod kafka;
-mod kv_store;
-mod node;
-use node::{Event, MaelstromMessage, Node, Reply};
 
 fn node_runtime<Body, NodeState>(
     mut node: NodeState,

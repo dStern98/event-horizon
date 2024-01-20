@@ -4,6 +4,13 @@ use std::io;
 use std::io::Write;
 use std::sync::mpsc::Sender;
 
+pub mod broadcast;
+pub mod echo;
+pub mod generate_id;
+pub mod grow_counter;
+pub mod kafka;
+pub mod kv_store;
+
 pub enum Event<Body> {
     //An Event can be anything that
     //the Node should react to in some way.
@@ -25,7 +32,7 @@ where
     Self: Sized,
 {
     //Types that impl this trait are Reply Bodies for Maelstrom Messages
-    fn into_reply(self, node_state: &mut NodeState, src: &String) -> Option<Self>;
+    fn into_reply(self, node_state: &mut NodeState, src: &str) -> Option<Self>;
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

@@ -57,7 +57,7 @@ pub enum BroadcastBody {
 }
 
 impl Reply<BroadcastNode> for BroadcastBody {
-    fn into_reply(self, node_state: &mut BroadcastNode, src: &String) -> Option<Self> {
+    fn into_reply(self, node_state: &mut BroadcastNode, src: &str) -> Option<Self> {
         match self {
             BroadcastBody::Topology {
                 msg_id,
@@ -99,7 +99,7 @@ impl Reply<BroadcastNode> for BroadcastBody {
                 //key=src node. (If a node sent you a message, if must already have seen those messages).
                 node_state
                     .confirmed_seen
-                    .entry(src.clone())
+                    .entry(src.to_owned())
                     .or_default()
                     .extend(message.clone());
                 Some(BroadcastBody::GossipOk {
@@ -115,7 +115,7 @@ impl Reply<BroadcastNode> for BroadcastBody {
                 //then we know they recieved these messages
                 node_state
                     .confirmed_seen
-                    .entry(src.clone())
+                    .entry(src.to_owned())
                     .or_default()
                     .extend(ack_message);
                 None

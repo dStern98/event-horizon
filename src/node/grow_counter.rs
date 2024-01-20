@@ -99,7 +99,7 @@ pub enum CounterBody {
 }
 
 impl Reply<CounterNode> for CounterBody {
-    fn into_reply(self, node_state: &mut CounterNode, _: &String) -> Option<Self> {
+    fn into_reply(self, node_state: &mut CounterNode, _: &str) -> Option<Self> {
         match self {
             CounterBody::Add { msg_id, delta } => {
                 *node_state

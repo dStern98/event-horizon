@@ -121,7 +121,7 @@ fn key_value_crud(
 }
 
 impl Reply<KVStoreNode> for KVStoreBody {
-    fn into_reply(self, node_state: &mut KVStoreNode, _: &String) -> Option<Self> {
+    fn into_reply(self, node_state: &mut KVStoreNode, _: &str) -> Option<Self> {
         //!Consumes self, returns a Some(reply_body)
         //! if one exists.
         match self {

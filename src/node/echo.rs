@@ -1,4 +1,5 @@
-use super::{Event, Node, NodeMetadata, Reply};
+use super::{Event, Node, Reply};
+use crate::NodeMetadata;
 use serde::{self, Deserialize, Serialize};
 use std::io;
 use std::sync::mpsc::Sender;
@@ -23,7 +24,7 @@ pub enum EchoBody {
 }
 
 impl Reply<EchoNode> for EchoBody {
-    fn into_reply(self, echo_node: &mut EchoNode, _: &String) -> Option<EchoBody> {
+    fn into_reply(self, echo_node: &mut EchoNode, _: &str) -> Option<EchoBody> {
         match self {
             EchoBody::Echo { msg_id, echo, .. } => Some(EchoBody::EchoOk {
                 msg_id: echo_node.current_msg_id,

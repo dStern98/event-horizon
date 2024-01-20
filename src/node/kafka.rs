@@ -54,7 +54,7 @@ pub enum KafkaBody {
 }
 
 impl Reply<KafkaNode> for KafkaBody {
-    fn into_reply(self, node_state: &mut KafkaNode, _: &String) -> Option<Self> {
+    fn into_reply(self, node_state: &mut KafkaNode, _: &str) -> Option<Self> {
         match self {
             KafkaBody::Send { key, msg, msg_id } => {
                 let messages = node_state.messages.entry(key).or_default();
