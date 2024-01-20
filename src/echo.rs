@@ -41,12 +41,9 @@ impl Node<EchoBody> for EchoNode {
     }
 
     fn handle_event(&mut self, event: Event<EchoBody>, stdout_handle: &mut io::StdoutLock) {
-        match event {
-            Event::Message(message) => {
-                message.message_reply(stdout_handle, self);
-                self.current_msg_id += 1;
-            }
-            _ => {}
+        if let Event::Message(message) = event {
+            message.message_reply(stdout_handle, self);
+            self.current_msg_id += 1;
         }
     }
 }

@@ -1,6 +1,5 @@
 use crate::init;
 use serde::{Deserialize, Serialize};
-use serde_json;
 use std::io;
 use std::io::Write;
 use std::sync::mpsc::Sender;
@@ -50,21 +49,21 @@ where
     }
     pub fn message_reply<NodeState>(
         self,
-        mut stdout_handle: &mut io::StdoutLock,
-        mut node_state: &mut NodeState,
+        stdout_handle: &mut io::StdoutLock,
+        node_state: &mut NodeState,
     ) where
         Body: Reply<NodeState>,
     {
         //! For a given MaelStromMessage, Build and send a reply
         //! if one exists.
-        let reply_body = self.body.into_reply(&mut node_state, &self.src);
+        let reply_body = self.body.into_reply(node_state, &self.src);
         if let Some(reply_body) = reply_body {
             let mut message = MaelstromMessage {
                 src: self.dest,
                 dest: self.src,
                 body: reply_body,
             };
-            message.send(&mut stdout_handle);
+            message.send(stdout_handle);
         }
     }
 }

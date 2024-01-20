@@ -42,7 +42,7 @@ impl Node<CounterBody> for CounterNode {
         }
     }
 
-    fn handle_event(&mut self, event: Event<CounterBody>, mut stdout_handle: &mut io::StdoutLock)
+    fn handle_event(&mut self, event: Event<CounterBody>, stdout_handle: &mut io::StdoutLock)
     where
         CounterBody: Reply<Self>,
         Self: Sized,
@@ -64,7 +64,7 @@ impl Node<CounterBody> for CounterNode {
                             node_counter_map: self.node_counter_map.clone(),
                         },
                     };
-                    counter_value.send(&mut stdout_handle);
+                    counter_value.send(stdout_handle);
                     self.current_msg_id += 1;
                 }
             }

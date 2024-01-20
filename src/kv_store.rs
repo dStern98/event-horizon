@@ -37,7 +37,7 @@ impl Node<KVStoreBody> for KVStoreNode {
         }
     }
 
-    fn handle_event(&mut self, event: Event<KVStoreBody>, mut stdout_handle: &mut io::StdoutLock)
+    fn handle_event(&mut self, event: Event<KVStoreBody>, stdout_handle: &mut io::StdoutLock)
     where
         KVStoreBody: Reply<Self>,
         Self: Sized,
@@ -50,7 +50,7 @@ impl Node<KVStoreBody> for KVStoreNode {
             Event::PropogateWrites => {
                 let unpropogated_writes: HashMap<usize, usize> =
                     self.unpropogated_writes.drain().collect();
-                if unpropogated_writes.len() != 0 {
+                if !unpropogated_writes.is_empty() {
                     for other_node in self.other_node_ids.iter() {
                         let mut kv_writes = MaelstromMessage {
                             src: self.node_id.clone(),
@@ -60,7 +60,7 @@ impl Node<KVStoreBody> for KVStoreNode {
                                 write_ops: unpropogated_writes.clone(),
                             },
                         };
-                        kv_writes.send(&mut stdout_handle);
+                        kv_writes.send(stdout_handle);
                     }
                 }
             }
@@ -103,14 +103,14 @@ fn key_value_crud(
 
     if operation == "r" {
         let read_value = kv_store.get(&key);
-        (operation, key, read_value.map(|value| value.clone()))
+        (operation, key, read_value.copied())
     } else if operation == "w" {
         let (key, value) = (
             key,
             value.expect("Recieved a Write Op without a value to write."),
         );
-        kv_store.insert(key.clone(), value.clone());
-        unpropogated_writes.insert(key.clone(), value.clone());
+        kv_store.insert(key, value);
+        unpropogated_writes.insert(key, value);
         (operation, key, Some(value))
     } else {
         panic!(

@@ -1,6 +1,5 @@
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use serde_json;
 use std::io::{self, BufRead};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
@@ -27,8 +26,7 @@ fn node_runtime<Body, NodeState>(
     //Spawns a thread that reads stdin. Any messages to be sent out are dropped
     // down the channel to the main thread, which has an stdout handle.
     thread::spawn(move || {
-        let stdin_handle = io::stdin().lock();
-        for line in stdin_handle.lines() {
+        for line in io::stdin().lock().lines() {
             let line = line.expect("Nothing recieved via stdin...");
             let message: Result<MaelstromMessage<Body>, _> = serde_json::from_str(&line);
             match message {

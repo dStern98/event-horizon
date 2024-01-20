@@ -94,14 +94,14 @@ impl Reply<BroadcastNode> for BroadcastBody {
             BroadcastBody::Gossip { msg_id, message } => {
                 //When recieving a Gossip message, first add the gossip messages to
                 // the messages Hashset.
-                node_state.messages.extend(message.clone().into_iter());
+                node_state.messages.extend(message.clone());
                 //Then, add the Messages to the confirmed seen HashMap with
                 //key=src node. (If a node sent you a message, if must already have seen those messages).
                 node_state
                     .confirmed_seen
                     .entry(src.clone())
-                    .or_insert(HashSet::new())
-                    .extend(message.clone().into_iter());
+                    .or_default()
+                    .extend(message.clone());
                 Some(BroadcastBody::GossipOk {
                     in_reply_to: msg_id,
                     msg_id: node_state.current_msg_id,
@@ -116,7 +116,7 @@ impl Reply<BroadcastNode> for BroadcastBody {
                 node_state
                     .confirmed_seen
                     .entry(src.clone())
-                    .or_insert(HashSet::new())
+                    .or_default()
                     .extend(ack_message);
                 None
             }
@@ -164,7 +164,7 @@ impl Node<BroadcastBody> for BroadcastNode {
                         Some(known) => self.messages.difference(known).copied().collect(),
                         None => self.messages.iter().copied().collect(),
                     };
-                    if message.len() > 0 {
+                    if !message.is_empty() {
                         let mut maelstrom_message = MaelstromMessage {
                             src: self.node_id.clone(),
                             dest: neighbor.clone(),

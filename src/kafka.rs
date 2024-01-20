@@ -57,7 +57,7 @@ impl Reply<KafkaNode> for KafkaBody {
     fn into_reply(self, node_state: &mut KafkaNode, _: &String) -> Option<Self> {
         match self {
             KafkaBody::Send { key, msg, msg_id } => {
-                let messages = node_state.messages.entry(key).or_insert(Vec::new());
+                let messages = node_state.messages.entry(key).or_default();
                 messages.push(msg);
                 //Currently, offsets start at 0 and increment by 1.
                 Some(KafkaBody::SendOk {
@@ -77,7 +77,7 @@ impl Reply<KafkaNode> for KafkaBody {
                             if tuple_messages.len() >= 10 {
                                 break;
                             }
-                            tuple_messages.push((offset, item.clone()));
+                            tuple_messages.push((offset, *item));
                             offset += 1;
                         }
                         poll_response.insert(key, tuple_messages);
@@ -106,7 +106,7 @@ impl Reply<KafkaNode> for KafkaBody {
                 keys.into_iter()
                     .map(|key| {
                         if let Some(offset) = node_state.committed_offsets.get(&key) {
-                            committed_offsets.insert(key, offset.clone());
+                            committed_offsets.insert(key, *offset);
                         }
                     })
                     .count();
@@ -141,12 +141,9 @@ impl Node<KafkaBody> for KafkaNode {
         KafkaBody: Reply<Self>,
         Self: Sized,
     {
-        match event {
-            Event::Message(message) => {
-                message.message_reply(stdout_handle, self);
-                self.current_message_id += 1;
-            }
-            _ => {}
+        if let Event::Message(message) = event {
+            message.message_reply(stdout_handle, self);
+            self.current_message_id += 1;
         }
     }
 }
